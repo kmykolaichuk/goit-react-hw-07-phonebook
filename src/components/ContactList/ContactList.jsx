@@ -1,27 +1,48 @@
 import { Item, Button } from './ContactList.styled';
-import { remove } from '../../redux/itemsSlice';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
+import {
+  useDeleteContactMutation,
+  useFetchContactsQuery,
+} from 'redux/contactsSlice';
+import toast from 'react-hot-toast';
 
 const ContactList = () => {
-  const dispatch = useDispatch();
-  const contacts = useSelector(state => state.items);
+  const deleteContactId = async id => {
+    try {
+      await deleteContact(id);
+      toast.success(`Contact deleted `);
+    } catch (error) {
+      toast.error('Oops! Something went wrong. Please, try again!');
+    }
+  };
+
+  const visibleContacts = (contacts, filter) => {
+    contacts.filter(contact =>
+      contact.name.toLowerCase().includes(filter.toLowerCase())
+    );
+  };
+
   const filter = useSelector(state => state.filter);
 
-  const normalizedFilter = filter.toLowerCase();
-  const visibleContacts = contacts.filter(contact =>
-    contact.name.toLowerCase().includes(normalizedFilter)
-  );
+  const { data: contacts = [] } = useFetchContactsQuery();
+  const [deleteContact, { isLoading }] = useDeleteContactMutation();
+
+  const contactsList = visibleContacts(contacts, filter);
 
   return (
     <ul>
-      {visibleContacts.map(({ id, name, number }) => (
-        <Item key={id}>
-          {name}: {number}
-          <Button type="button" onClick={() => dispatch(remove(id))}>
-            Delete
-          </Button>
-        </Item>
-      ))}
+      {contactsList ? (
+        <>
+          {contactsList.map(contact => (
+            <Item key={contact.id}>
+              {contact.name}: {contact.phone}
+              <Button type="button" onClick={() => deleteContactId(contact.id)}>
+                {isLoading ? 'Processing...' : 'Delete'}
+              </Button>
+            </Item>
+          ))}
+        </>
+      ) : null}
     </ul>
   );
 };
