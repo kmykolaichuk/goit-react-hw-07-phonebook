@@ -3,12 +3,14 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 export const contactsApi = createApi({
   reducerPath: 'contactsApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'https://638a2f11c5356b25a214becb.mockapi.io',
+    baseUrl: 'https://638ca88dd2fc4a058a5ca3b1.mockapi.io',
   }),
   tagTypes: ['Contact'],
   endpoints: builder => ({
     fetchContacts: builder.query({
       query: () => `/contacts`,
+      validateStatus: (response, result) =>
+        response.status === 200 && !result.isError,
       providesTags: ['Contact'],
     }),
     deleteContact: builder.mutation({
@@ -18,11 +20,11 @@ export const contactsApi = createApi({
       }),
       invalidatesTags: ['Contact'],
     }),
-    addContact: builder.mutation({
-      query: ({ name, phone }) => ({
+    createContact: builder.mutation({
+      query: newContact => ({
         url: `/contacts`,
         method: 'POST',
-        body: { name, phone },
+        body: newContact,
       }),
       invalidatesTags: ['Contact'],
     }),
@@ -32,5 +34,5 @@ export const contactsApi = createApi({
 export const {
   useFetchContactsQuery,
   useDeleteContactMutation,
-  useAddContactMutation,
+  useCreateContactMutation,
 } = contactsApi;

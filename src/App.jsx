@@ -1,10 +1,11 @@
-import ContactForm from './components/ContactForm/ContactForm';
-import ContactList from './components/ContactList/ContactList';
-import Filter from './components/Filter/Filter';
+import { ContactForm } from './components/ContactForm/ContactForm';
+import { ContactList } from './components/ContactList/ContactList';
+import { Filter } from './components/Filter/Filter';
+import { ToastContainer } from 'react-toastify';
+import { useFetchContactsQuery } from './redux/contactsSlice';
 
-import { Toaster } from 'react-hot-toast';
-
-export default function App() {
+export const App = () => {
+  const { data } = useFetchContactsQuery();
   return (
     <div>
       <h1>Phonebook</h1>
@@ -12,8 +13,8 @@ export default function App() {
 
       <h2>Contacts</h2>
       <Filter />
-      <ContactList />
-      <Toaster />
+      {data && <ContactList />}
+      <ToastContainer position="top-right" autoClose={2000} />
     </div>
   );
-}
+};
